@@ -22,11 +22,13 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"errors"
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
 
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/satori/go.uuid"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
@@ -35,16 +37,25 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "uuid_v5_generator",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "Quick-and-dirty tool for creating v5 UUIDs",
+	Long: `The primary purpose of this tool is to generate v5 UUIDs that can be inserted into tests.`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 2 {
+			return errors.New("both a namespace and a name are required")
+		}
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+		if _, err := uuid.FromString(args[0]); err != nil {
+			return errors.New("namespace must be a valid UUID")
+		}
+
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		namespace := uuid.Must(uuid.FromString(args[0]))
+		v5 := uuid.NewV5(namespace, args[1])
+
+		fmt.Println(v5)
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
