@@ -24,5 +24,5 @@ package main
 import "github.com/DerHabicht/uuid_v5_generator/cmd"
 
 func main() {
-  cmd.Execute()
+	cmd.Execute()
 }
